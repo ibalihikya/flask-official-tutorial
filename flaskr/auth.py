@@ -15,20 +15,22 @@ def register():
         username = request.form['username']
         password = request.form['password']
         db = get_db()
+        cur = db.cursor()
         error = None
+
+        cur.execute(
+            "SELECT id FROM userx WHERE username = %s", (username,))
 
         if not username:
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif db.execute(
-            'SELECT id FROM user WHERE username = ?', (username,)
-        ).fetchone() is not None:
+        elif cur.fetchone() is not None:
             error = 'User {} is already registered.'.format(username)
 
         if error is None:
-            db.execute(
-                'INSERT INTO user (username, password) VALUES (?, ?)',
+            cur.execute(
+                "INSERT INTO userx (username, password) VALUES (%s, %s)",
                 (username, generate_password_hash(password))
             )
             db.commit()
@@ -44,19 +46,22 @@ def login():
         username = request.form['username']
         password = request.form['password']
         db = get_db()
+        cur = db.cursor()
         error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+        cur.execute(
+            "SELECT * FROM userx WHERE username = %s", (username,)
+        )
+
+        user = cur.fetchone()
 
         if user is None:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user[2], password):
             error = 'Incorrect password.'
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user[0]
             return redirect(url_for('index'))
 
         flash(error)
@@ -70,10 +75,11 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
-
+        cur = get_db().cursor()
+        cur.execute(
+            "SELECT * FROM userx WHERE id = %s", (user_id,))
+        g.user = cur.fetchone()
+        
 @bp.route('/logout')
 def logout():
     session.clear()
