@@ -4,7 +4,7 @@ click==6.7
 colorama==0.3.9
 coverage==4.5.1
 Flask==1.0.2
--e git+https://github.com/ibalihikya/flask-official-tutorial.git@7f37dc825025f8e8b78b6cc6e1608aa2d7b8dee0#egg=flaskr
+-e git+https://github.com/ibalihikya/flask-official-tutorial.git@7718f129548b2101207f342c4b6fe5eefdfa31c0#egg=flaskr
 gunicorn==19.8.1
 itsdangerous==0.24
 Jinja2==2.10
